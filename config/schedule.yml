@@ -1,0 +1,14 @@
+# Schedule configuration for Sidekiq-Cron
+# Format: cron expression => job class
+
+# Check endpoints every 30 seconds (handles individual endpoint intervals)
+monitoring:
+  cron: "*/30 * * * * *"  # Every 30 seconds
+  class: "ScheduledMonitoringJob"
+  queue: default
+
+# Optional: Clean up old status changes daily at 2 AM
+cleanup_old_records:
+  cron: "0 2 * * *"  # Daily at 2 AM
+  class: "CleanupOldRecordsJob"
+  queue: default 

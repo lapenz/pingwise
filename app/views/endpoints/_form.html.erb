@@ -1,0 +1,160 @@
+<%= form_with model: endpoint, local: true, class: "space-y-6" do |form| %>
+  <% if endpoint.errors.any? %>
+    <div class="bg-red-50 border border-red-200 rounded-md p-4">
+      <div class="flex">
+        <div class="flex-shrink-0">
+          <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+          </svg>
+        </div>
+        <div class="ml-3">
+          <h3 class="text-sm font-medium text-red-800">
+            <%= pluralize(endpoint.errors.count, "error") %> prohibited this endpoint from being saved:
+          </h3>
+          <div class="mt-2 text-sm text-red-700">
+            <ul class="list-disc pl-5 space-y-1">
+              <% endpoint.errors.full_messages.each do |message| %>
+                <li><%= message %></li>
+              <% end %>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <div>
+    <%= form.label :name, class: "block text-sm font-medium text-gray-700" %>
+    <%= form.text_field :name, class: "mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500", placeholder: "My Website" %>
+  </div>
+
+  <div>
+    <%= form.label :endpoint_type, class: "block text-sm font-medium text-gray-700" %>
+    <%= form.select :endpoint_type, 
+        options_for_select(Endpoint.endpoint_types.keys.map { |type| [type.humanize, type] }, endpoint.endpoint_type), 
+        {}, 
+        { class: "mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" } %>
+  </div>
+
+  <div id="url-fields" class="endpoint-fields" style="display: block;">
+    <%= form.label :url, class: "block text-sm font-medium text-gray-700" %>
+    <%= form.url_field :url, class: "mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500", placeholder: "https://example.com" %>
+  </div>
+
+  <div id="ip-fields" class="endpoint-fields" style="display: none;">
+    <%= form.label :ip, class: "block text-sm font-medium text-gray-700" %>
+    <%= form.text_field :ip, class: "mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500", placeholder: "192.168.1.1" %>
+  </div>
+
+  <div id="port-fields" class="endpoint-fields" style="display: none;">
+    <%= form.label :port, class: "block text-sm font-medium text-gray-700" %>
+    <%= form.number_field :port, class: "mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500", placeholder: "80", min: 1, max: 65535 %>
+  </div>
+
+  <div class="flex items-center">
+    <%= form.check_box :enabled, class: "h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" %>
+    <%= form.label :enabled, class: "ml-2 block text-sm text-gray-900" %>
+  </div>
+
+  <div>
+    <%= form.label :check_interval_seconds, "Check Interval (seconds)", class: "block text-sm font-medium text-gray-700" %>
+    <%= form.number_field :check_interval_seconds, 
+        value: endpoint.check_interval_seconds, 
+        class: "mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500", 
+        placeholder: "60", 
+        min: 30, 
+        max: 86400 %>
+    <p class="mt-1 text-sm text-gray-500">
+      How often to check this endpoint (30 seconds to 24 hours). Default: 60 seconds (1 minute)
+    </p>
+  </div>
+
+  <div class="flex justify-end space-x-3">
+    <% if endpoint.persisted? %>
+      <%= link_to "Cancel", endpoint_path(endpoint), class: "bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" %>
+      <%= form.submit "Update Endpoint", class: "bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" %>
+    <% else %>
+      <%= link_to "Cancel", endpoints_path, class: "bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" %>
+      <%= form.submit "Create Endpoint", class: "bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" %>
+    <% end %>
+  </div>
+<% end %>
+
+<script>
+// Run immediately and also on DOMContentLoaded to ensure it works
+function initializeFormFields() {
+  const endpointTypeSelect = document.getElementById('endpoint_endpoint_type');
+  const urlFields = document.getElementById('url-fields');
+  const ipFields = document.getElementById('ip-fields');
+  const portFields = document.getElementById('port-fields');
+
+  function showFieldsForType(type) {
+    console.log('Showing fields for type:', type);
+    
+    // Hide all fields first
+    document.querySelectorAll('.endpoint-fields').forEach(field => {
+      field.style.display = 'none';
+    });
+
+    // Show relevant fields based on type
+    switch(type) {
+      case 'url':
+        if (urlFields) {
+          urlFields.style.display = 'block';
+          console.log('URL fields shown');
+        }
+        break;
+      case 'ip':
+        if (ipFields) {
+          ipFields.style.display = 'block';
+          console.log('IP fields shown');
+        }
+        break;
+      case 'port':
+        if (ipFields) ipFields.style.display = 'block';
+        if (portFields) portFields.style.display = 'block';
+        console.log('IP and Port fields shown');
+        break;
+      case 'ssl':
+        if (urlFields) {
+          urlFields.style.display = 'block';
+          console.log('SSL fields shown (using URL)');
+        }
+        break;
+      default:
+        // Show URL fields by default
+        if (urlFields) {
+          urlFields.style.display = 'block';
+          console.log('Default: URL fields shown');
+        }
+        break;
+    }
+  }
+
+  if (endpointTypeSelect) {
+    // Show fields on page load
+    const initialValue = endpointTypeSelect.value || 'url';
+    console.log('Initial value:', initialValue);
+    showFieldsForType(initialValue);
+
+    // Show fields when type changes
+    endpointTypeSelect.addEventListener('change', function() {
+      console.log('Type changed to:', this.value);
+      showFieldsForType(this.value);
+    });
+  } else {
+    console.error('Endpoint type select not found');
+    // Fallback: show URL fields by default
+    if (urlFields) {
+      urlFields.style.display = 'block';
+      console.log('Fallback: URL fields shown');
+    }
+  }
+}
+
+// Run immediately
+initializeFormFields();
+
+// Also run when DOM is ready
+document.addEventListener('DOMContentLoaded', initializeFormFields);
+</script> 

@@ -1,0 +1,107 @@
+/*
+ * This is a manifest file that'll be compiled into application.css, which will include all the files
+ * listed below.
+ *
+ * Any CSS (and SCSS, if configured) file within this directory, lib/assets/stylesheets, or any plugin's
+ * vendor/assets/stylesheets directory can be referenced here using a relative path.
+ *
+ * You're free to add application-wide styles to this file and they'll appear at the bottom of the
+ * compiled file so the styles you add here take precedence over styles defined in any other CSS/SCSS
+ * files in this directory. Styles in this file should be added after the last require_* statement.
+ * It is generally better to create a new file per style scope.
+ *
+ *= require_tree .
+ *= require_self
+ */
+
+/* Timeline Styles */
+.timeline-section {
+  margin-bottom: 1.5rem;
+}
+
+.timeline-title {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 0.75rem;
+}
+
+.timeline-text {
+  font-family: 'Courier New', monospace;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.timeline-line-text {
+  margin-bottom: 0.5rem;
+  white-space: pre;
+}
+
+.timeline-times {
+  margin-bottom: 0.25rem;
+  white-space: pre;
+}
+
+.timeline-statuses {
+  white-space: pre;
+}
+
+.time-text {
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.time-spacer {
+  color: #6b7280;
+}
+
+.status-text {
+  font-weight: 500;
+}
+
+.status-up-text {
+  color: #059669;
+}
+
+.status-down-text {
+  color: #dc2626;
+}
+
+.status-degraded-text {
+  color: #d97706;
+}
+
+.status-unknown-text {
+  color: #4b5563;
+}
+
+.status-paused-text {
+  color: #2563eb;
+}
+
+/* Colored timeline lines */
+.line-green {
+  color: #059669;
+}
+
+.line-red {
+  color: #dc2626;
+}
+
+.line-orange {
+  color: #d97706;
+}
+
+.line-gray {
+  color: #4b5563;
+}
+
+.line-blue {
+  color: #2563eb;
+}
+
+.no-data {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin-top: 0.5rem;
+} 

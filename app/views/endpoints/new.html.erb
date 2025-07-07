@@ -1,0 +1,66 @@
+<div class="min-h-screen bg-gray-50 py-8">
+  <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="mb-8">
+      <h1 class="text-3xl font-bold text-gray-900">Add New Endpoint</h1>
+      <p class="mt-2 text-gray-600">Configure monitoring for your endpoint</p>
+    </div>
+
+    <div class="bg-white rounded-lg shadow p-6">
+      <%= render 'form', endpoint: @endpoint %>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const endpointTypeSelect = document.getElementById('endpoint_endpoint_type');
+  const urlFields = document.getElementById('url-fields');
+  const ipFields = document.getElementById('ip-fields');
+  const portFields = document.getElementById('port-fields');
+
+  function showFieldsForType(type) {
+    console.log('Showing fields for type:', type); // Debug log
+    
+    // Hide all fields
+    document.querySelectorAll('.endpoint-fields').forEach(field => {
+      field.style.display = 'none';
+    });
+
+    // Show relevant fields based on type
+    switch(type) {
+      case 'url':
+        if (urlFields) urlFields.style.display = 'block';
+        break;
+      case 'ip':
+        if (ipFields) ipFields.style.display = 'block';
+        break;
+      case 'port':
+        if (ipFields) ipFields.style.display = 'block';
+        if (portFields) portFields.style.display = 'block';
+        break;
+      case 'ssl':
+        if (urlFields) urlFields.style.display = 'block';
+        break;
+      default:
+        // Show URL fields by default
+        if (urlFields) urlFields.style.display = 'block';
+        break;
+    }
+  }
+
+  if (endpointTypeSelect) {
+    // Show fields on page load
+    const initialValue = endpointTypeSelect.value || 'url';
+    showFieldsForType(initialValue);
+
+    // Show fields when type changes
+    endpointTypeSelect.addEventListener('change', function() {
+      showFieldsForType(this.value);
+    });
+  } else {
+    console.error('Endpoint type select not found');
+    // Fallback: show URL fields by default
+    if (urlFields) urlFields.style.display = 'block';
+  }
+});
+</script>

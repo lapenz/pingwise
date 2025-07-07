@@ -1,0 +1,150 @@
+<div class="min-h-screen bg-gray-50 py-8">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <!-- Header -->
+    <div class="mb-8">
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-3xl font-bold text-gray-900">Endpoints</h1>
+          <p class="mt-2 text-gray-600">Manage and monitor your endpoints</p>
+        </div>
+        <%= link_to "Add Endpoint", new_endpoint_path, class: "bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium" %>
+      </div>
+    </div>
+
+    <!-- Status Summary -->
+    <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
+      <div class="bg-white rounded-lg shadow p-4">
+        <div class="flex items-center">
+          <div class="flex-shrink-0">
+            <span class="text-2xl">🟢</span>
+          </div>
+          <div class="ml-3">
+            <p class="text-sm font-medium text-gray-500">Up</p>
+            <p class="text-xl font-semibold text-gray-900"><%= @status_counts[:up] %></p>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-lg shadow p-4">
+        <div class="flex items-center">
+          <div class="flex-shrink-0">
+            <span class="text-2xl">🔴</span>
+          </div>
+          <div class="ml-3">
+            <p class="text-sm font-medium text-gray-500">Down</p>
+            <p class="text-xl font-semibold text-gray-900"><%= @status_counts[:down] %></p>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-lg shadow p-4">
+        <div class="flex items-center">
+          <div class="flex-shrink-0">
+            <span class="text-2xl">🟡</span>
+          </div>
+          <div class="ml-3">
+            <p class="text-sm font-medium text-gray-500">Degraded</p>
+            <p class="text-xl font-semibold text-gray-900"><%= @status_counts[:degraded] %></p>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-lg shadow p-4">
+        <div class="flex items-center">
+          <div class="flex-shrink-0">
+            <span class="text-2xl">⚪</span>
+          </div>
+          <div class="ml-3">
+            <p class="text-sm font-medium text-gray-500">Unknown</p>
+            <p class="text-xl font-semibold text-gray-900"><%= @status_counts[:unknown] %></p>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-lg shadow p-4">
+        <div class="flex items-center">
+          <div class="flex-shrink-0">
+            <span class="text-2xl">⏸️</span>
+          </div>
+          <div class="ml-3">
+            <p class="text-sm font-medium text-gray-500">Paused</p>
+            <p class="text-xl font-semibold text-gray-900"><%= @status_counts[:paused] %></p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Endpoints List -->
+    <div class="bg-white rounded-lg shadow">
+      <div class="px-6 py-4 border-b border-gray-200">
+        <h2 class="text-lg font-medium text-gray-900">All Endpoints</h2>
+      </div>
+      
+      <div class="overflow-hidden">
+        <% if @endpoints.any? %>
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last Check</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Response Time</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Interval</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              <% @endpoints.each do |endpoint| %>
+                <tr class="hover:bg-gray-50">
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm font-medium text-gray-900">
+                      <%= link_to endpoint.name, endpoint_path(endpoint), class: "hover:text-blue-600" %>
+                    </div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">
+                      <%= endpoint.endpoint_type.upcase %>
+                    </span>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="inline-flex items-center px-2 py-1 text-xs font-semibold rounded-full
+                      <%= case endpoint.status
+                          when 'up' then 'bg-green-100 text-green-800'
+                          when 'down' then 'bg-red-100 text-red-800'
+                          when 'degraded' then 'bg-yellow-100 text-yellow-800'
+                          when 'unknown' then 'bg-gray-100 text-gray-800'
+                          when 'paused' then 'bg-blue-100 text-blue-800'
+                          end %>">
+                      <%= endpoint.status_icon %> <%= endpoint.status.upcase %>
+                    </span>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <%= endpoint.last_checked_at&.strftime("%b %d, %H:%M") || "Never" %>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <%= endpoint.average_response_time ? "#{endpoint.average_response_time}ms" : "N/A" %>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <%= endpoint.formatted_interval %>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                    <%= link_to "View", endpoint_path(endpoint), class: "text-blue-600 hover:text-blue-900" %>
+                    <%= link_to "Edit", edit_endpoint_path(endpoint), class: "text-gray-600 hover:text-gray-900" %>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        <% else %>
+          <div class="text-center py-12">
+            <div class="text-gray-400 text-6xl mb-4">📡</div>
+            <h3 class="text-lg font-medium text-gray-900 mb-2">No endpoints yet</h3>
+            <p class="text-gray-500 mb-6">Get started by adding your first endpoint to monitor.</p>
+            <%= link_to "Add Your First Endpoint", new_endpoint_path, class: "bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-md text-sm font-medium" %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>

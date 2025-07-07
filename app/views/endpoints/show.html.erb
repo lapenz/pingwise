@@ -1,0 +1,311 @@
+<div class="min-h-screen bg-gray-50 py-8">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <!-- Header -->
+    <div class="mb-8">
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-3xl font-bold text-gray-900"><%= @endpoint.name %></h1>
+          <p class="mt-2 text-gray-600"><%= @endpoint.endpoint_type.humanize %> endpoint</p>
+        </div>
+        <div class="flex space-x-3">
+          <%= link_to "Edit", edit_endpoint_path(@endpoint), class: "bg-white hover:bg-gray-50 text-gray-700 px-4 py-2 border border-gray-300 rounded-md text-sm font-medium" %>
+          <%= link_to "Back to Dashboard", root_path, class: "bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md text-sm font-medium" %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Status Card -->
+    <div class="bg-white rounded-lg shadow mb-8">
+      <div class="p-6">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center">
+            <div class="flex-shrink-0">
+              <span class="text-4xl"><%= @endpoint.status_icon %></span>
+            </div>
+            <div class="ml-4">
+              <h2 class="text-xl font-semibold text-gray-900">Status: <%= @endpoint.status.upcase %></h2>
+              <p class="text-gray-500">Last checked: <%= @endpoint.last_checked_at&.strftime("%B %d, %Y at %I:%M %p") || "Never" %></p>
+            </div>
+          </div>
+          <div class="text-right">
+            <%= form_with url: check_now_endpoint_path(@endpoint), method: :post, local: true do |form| %>
+              <%= form.submit "Check Now", class: "bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-md text-sm font-medium" %>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Metrics Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <div class="bg-white rounded-lg shadow p-6">
+        <h3 class="text-lg font-medium text-gray-900 mb-2">Uptime (30 days)</h3>
+        <p class="text-3xl font-bold text-green-600"><%= @uptime_30d %>%</p>
+      </div>
+      
+      <div class="bg-white rounded-lg shadow p-6">
+        <h3 class="text-lg font-medium text-gray-900 mb-2">Uptime (7 days)</h3>
+        <p class="text-3xl font-bold text-blue-600"><%= @uptime_7d %>%</p>
+      </div>
+      
+      <div class="bg-white rounded-lg shadow p-6">
+        <h3 class="text-lg font-medium text-gray-900 mb-2">Uptime (24 hours)</h3>
+        <p class="text-3xl font-bold text-purple-600"><%= @uptime_24h %>%</p>
+      </div>
+    </div>
+
+    <!-- Endpoint Details -->
+    <div class="bg-white rounded-lg shadow mb-8">
+      <div class="px-6 py-4 border-b border-gray-200">
+        <h3 class="text-lg font-medium text-gray-900">Endpoint Details</h3>
+      </div>
+      <div class="p-6">
+        <dl class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2">
+          <div>
+            <dt class="text-sm font-medium text-gray-500">Type</dt>
+            <dd class="mt-1 text-sm text-gray-900"><%= @endpoint.endpoint_type.humanize %></dd>
+          </div>
+          
+          <div>
+            <dt class="text-sm font-medium text-gray-500">Status</dt>
+            <dd class="mt-1">
+              <span class="inline-flex items-center px-2 py-1 text-xs font-semibold rounded-full
+                <%= case @endpoint.status
+                    when 'up' then 'bg-green-100 text-green-800'
+                    when 'down' then 'bg-red-100 text-red-800'
+                    when 'degraded' then 'bg-yellow-100 text-yellow-800'
+                    when 'unknown' then 'bg-gray-100 text-gray-800'
+                    when 'paused' then 'bg-blue-100 text-blue-800'
+                    end %>">
+                <%= @endpoint.status_icon %> <%= @endpoint.status.upcase %>
+              </span>
+            </dd>
+          </div>
+          
+          <% if @endpoint.url.present? %>
+            <div>
+              <dt class="text-sm font-medium text-gray-500">URL</dt>
+              <dd class="mt-1 text-sm text-gray-900">
+                <a href="<%= @endpoint.url %>" target="_blank" class="text-blue-600 hover:text-blue-800">
+                  <%= @endpoint.url %>
+                </a>
+              </dd>
+            </div>
+          <% end %>
+          
+          <% if @endpoint.ip.present? %>
+            <div>
+              <dt class="text-sm font-medium text-gray-500">IP Address</dt>
+              <dd class="mt-1 text-sm text-gray-900"><%= @endpoint.ip %></dd>
+            </div>
+          <% end %>
+          
+          <% if @endpoint.port.present? %>
+            <div>
+              <dt class="text-sm font-medium text-gray-500">Port</dt>
+              <dd class="mt-1 text-sm text-gray-900"><%= @endpoint.port %></dd>
+            </div>
+          <% end %>
+          
+          <div>
+            <dt class="text-sm font-medium text-gray-500">Average Response Time</dt>
+            <dd class="mt-1 text-sm text-gray-900">
+              <%= @endpoint.average_response_time ? "#{@endpoint.average_response_time}ms" : "N/A" %>
+            </dd>
+          </div>
+          
+          <div>
+            <dt class="text-sm font-medium text-gray-500">Enabled</dt>
+            <dd class="mt-1 text-sm text-gray-900">
+              <span class="inline-flex items-center px-2 py-1 text-xs font-semibold rounded-full <%= @endpoint.enabled? ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' %>">
+                <%= @endpoint.enabled? ? 'Yes' : 'No' %>
+              </span>
+            </dd>
+          </div>
+          
+          <div>
+            <dt class="text-sm font-medium text-gray-500">Check Interval</dt>
+            <dd class="mt-1 text-sm text-gray-900">
+              <%= @endpoint.formatted_interval %>
+            </dd>
+          </div>
+        </dl>
+      </div>
+    </div>
+
+    <!-- Status History -->
+    <div class="bg-white rounded-lg shadow">
+      <div class="px-6 py-4 border-b border-gray-200">
+        <h3 class="text-lg font-medium text-gray-900">Status History</h3>
+      </div>
+      <div class="p-4">
+        <!-- Timeline Chart -->
+        <div class="mb-6">
+          <h4 class="text-sm font-medium text-gray-700">Timeline (Last 24 Hours)</h4>
+          <div id="timeline-chart" class="bg-white rounded-lg border border-gray-200">
+            <!-- D3 chart will be rendered here -->
+          </div>
+          <% if @timeline_events.empty? %>
+            <p class="text-sm text-gray-500 mt-2">No status changes in the last 24 hours</p>
+          <% end %>
+        </div>
+
+        <!-- 10-Day Timeline Chart -->
+        <div class="mb-6">
+          <h4 class="text-sm font-medium text-gray-700">Timeline (Last 10 Days)</h4>
+          <div id="timeline-chart-10d" class="bg-white rounded-lg border border-gray-200">
+            <!-- D3 chart will be rendered here -->
+          </div>
+          <% if @timeline_events_10d.empty? %>
+            <p class="text-sm text-gray-500 mt-2">No status changes in the last 10 days</p>
+          <% end %>
+        </div>
+
+        <!-- Status Legend -->
+        <div class="my-5 p-4 bg-gray-50 rounded-lg">
+          <div class="flex flex-wrap justify-center gap-6">
+            <div class="flex items-center px-4 py-2 bg-white rounded-lg shadow-sm">
+              <div class="w-4 h-4 bg-green-500 rounded-full mr-4"></div>
+              <span class="text-sm font-medium text-gray-700">Up</span>
+            </div>
+            <div class="flex items-center px-4 py-2 bg-white rounded-lg shadow-sm">
+              <div class="w-4 h-4 bg-red-500 rounded-full mr-4"></div>
+              <span class="text-sm font-medium text-gray-700">Down</span>
+            </div>
+            <div class="flex items-center px-4 py-2 bg-white rounded-lg shadow-sm">
+              <div class="w-4 h-4 bg-yellow-500 rounded-full mr-4"></div>
+              <span class="text-sm font-medium text-gray-700">Degraded</span>
+            </div>
+            <div class="flex items-center px-4 py-2 bg-white rounded-lg shadow-sm">
+              <div class="w-4 h-4 bg-gray-500 rounded-full mr-4"></div>
+              <span class="text-sm font-medium text-gray-700">Unknown</span>
+            </div>
+            <div class="flex items-center px-4 py-2 bg-white rounded-lg shadow-sm">
+              <div class="w-4 h-4 bg-blue-500 rounded-full mr-4"></div>
+              <span class="text-sm font-medium text-gray-700">Paused</span>
+            </div>
+          </div>
+        </div>
+
+        <% if @status_changes.any? %>
+          <div class="p-6">
+            <div class="flow-root">
+              <ul class="-mb-8">
+                <% @status_changes.each_with_index do |status_change, index| %>
+                  <li>
+                    <div class="relative pb-8">
+                      <% unless index == @status_changes.length - 1 %>
+                        <span class="absolute top-4 left-4 -ml-px h-full w-0.5 bg-gray-200" aria-hidden="true"></span>
+                      <% end %>
+                      <div class="relative flex space-x-3">
+                        <div>
+                          <span class="h-8 w-8 rounded-full flex items-center justify-center ring-8 ring-white
+                            <%= case status_change.status
+                                when 'up' then 'bg-green-500'
+                                when 'down' then 'bg-red-500'
+                                when 'degraded' then 'bg-yellow-500'
+                                when 'unknown' then 'bg-gray-500'
+                                when 'paused' then 'bg-blue-500'
+                                end %>">
+                            <span class="text-white text-sm"><%= status_change.status_icon %></span>
+                          </span>
+                        </div>
+                        <div class="min-w-0 flex-1 pt-1.5 flex justify-between space-x-4">
+                          <div>
+                            <p class="text-sm text-gray-500">
+                              Status changed to <span class="font-medium text-gray-900"><%= status_change.status.upcase %></span>
+                            </p>
+                            <% if status_change.message.present? %>
+                              <p class="text-sm text-gray-500"><%= status_change.message %></p>
+                            <% end %>
+                            <% if status_change.response_time_ms.present? %>
+                              <p class="text-sm text-gray-500">Response time: <%= status_change.formatted_response_time %></p>
+                            <% end %>
+                          </div>
+                          <div class="text-right text-sm whitespace-nowrap text-gray-500">
+                            <time datetime="<%= status_change.checked_at.iso8601 %>">
+                              <%= status_change.checked_at.strftime("%b %d, %H:%M") %>
+                            </time>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </li>
+                <% end %>
+              </ul>
+            </div>
+          </div>
+        <% else %>
+          <div class="text-center py-8">
+            <div class="text-gray-400 text-4xl mb-4">📊</div>
+            <h3 class="text-lg font-medium text-gray-900 mb-2">No status history yet</h3>
+            <p class="text-gray-500">Status changes will appear here once monitoring begins.</p>
+          </div>
+        <% end %>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Initialize D3 Timeline Chart
+document.addEventListener('DOMContentLoaded', function() {
+  const timelineData = <%= raw @timeline_events.to_json %>;
+  const timelineData10d = <%= raw @timeline_events_10d.to_json %>;
+  const chartContainer = document.getElementById('timeline-chart');
+  const chartContainer10d = document.getElementById('timeline-chart-10d');
+  
+  if (chartContainer && timelineData.length > 0) {
+    try {
+      window.timelineChart = new TimelineChart('#timeline-chart', timelineData);
+    } catch (error) {
+      console.error('Error initializing timeline chart:', error);
+      chartContainer.innerHTML = '<p class="text-gray-500 text-center">Error loading timeline chart</p>';
+    }
+  }
+  
+  if (chartContainer10d && timelineData10d.length > 0) {
+    try {
+      window.timelineChart10d = new TimelineChart('#timeline-chart-10d', timelineData10d);
+    } catch (error) {
+      console.error('Error initializing 10-day timeline chart:', error);
+      chartContainer10d.innerHTML = '<p class="text-gray-500 text-center">Error loading timeline chart</p>';
+    }
+  }
+});
+
+// Initialize on turbo:load (for Turbo Drive navigation)
+document.addEventListener('turbo:load', function() {
+  const timelineData = <%= raw @timeline_events.to_json %>;
+  const timelineData10d = <%= raw @timeline_events_10d.to_json %>;
+  const chartContainer = document.getElementById('timeline-chart');
+  const chartContainer10d = document.getElementById('timeline-chart-10d');
+  
+  if (chartContainer && timelineData.length > 0) {
+    try {
+      // Destroy existing chart if it exists
+      if (window.timelineChart) {
+        window.timelineChart.destroy();
+      }
+      window.timelineChart = new TimelineChart('#timeline-chart', timelineData);
+    } catch (error) {
+      console.error('Error initializing timeline chart:', error);
+      chartContainer.innerHTML = '<p class="text-gray-500 text-center">Error loading timeline chart</p>';
+    }
+  }
+  
+  if (chartContainer10d && timelineData10d.length > 0) {
+    try {
+      // Destroy existing chart if it exists
+      if (window.timelineChart10d) {
+        window.timelineChart10d.destroy();
+      }
+      window.timelineChart10d = new TimelineChart('#timeline-chart-10d', timelineData10d);
+    } catch (error) {
+      console.error('Error initializing 10-day timeline chart:', error);
+      chartContainer10d.innerHTML = '<p class="text-gray-500 text-center">Error loading timeline chart</p>';
+    }
+  }
+});
+</script>
