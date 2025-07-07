@@ -53,7 +53,7 @@ gem "openssl", "~> 3.0"
 
 # Alerting services
 gem "slack-notifier", "~> 2.4.0"
-gem "twilio-ruby", "~> 7.0.0"
+gem "twilio-ruby", "~> 7.6.4"
 gem "mail", "~> 2.8.0"
 
 # Data storage and reporting
