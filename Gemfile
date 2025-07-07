@@ -58,7 +58,7 @@ gem "mail", "~> 2.8.0"
 
 # Data storage and reporting
 gem "activerecord-import", "~> 1.6.0"
-gem "chartkick", "~> 5.0.0"
+gem "chartkick", "~> 5.2.0"
 gem "groupdate", "~> 6.0.0"
 
 # Background job processing
