@@ -17,6 +17,13 @@ class Endpoint < ApplicationRecord
   scope :enabled, -> { where(enabled: true) }
   scope :by_status, ->(status) { where(status: status) }
   scope :by_type, ->(type) { where(endpoint_type: type) }
+  scope :due_for_check, ->(now = Time.current) {
+    where(enabled: true)
+      .where('last_checked_at IS NULL OR last_checked_at + (check_interval_seconds || \' seconds\')::interval <= ?', now)
+      .where('check_offset_bucket = ?', (now.sec / 15))
+  }
+
+  before_create :set_check_offset_bucket
 
   # Default interval is 60 seconds (1 minute)
   def check_interval_seconds
@@ -98,122 +105,32 @@ class Endpoint < ApplicationRecord
     end
   end
 
-  def timeline_data(days = 7, segment_hours = 1)
-    end_time = Time.current
-    start_time = days.days.ago.beginning_of_day
-    
-    # Get all status changes in the time range in a single query
-    changes_in_range = status_changes
-      .where(checked_at: start_time..end_time)
-      .order(:checked_at)
-      .pluck(:status, :checked_at, :message)
-    
-    # If no status changes, return simple data with current status
-    if changes_in_range.empty?
-      # Use larger segments for better performance
-      segment_count = [days * 24 / segment_hours, 168].min # Max 168 segments (7 days * 24 hours)
-      segment_seconds = (end_time - start_time) / segment_count
-      
-      segments = []
-      segment_count.times do |i|
-        segment_start = start_time + (i * segment_seconds)
-        segment_end = start_time + ((i + 1) * segment_seconds)
-        
-        segments << {
-          status: status,
-          start_time: segment_start,
-          end_time: segment_end,
-          duration_percent: 100.0 / segment_count,
-          change_time: nil,
-          change_message: nil
-        }
-      end
-      
-      return { segments: segments, total_duration: end_time - start_time }
-    end
-    
-    # Create segments based on actual status changes rather than fixed time intervals
+  def timeline_segments_window(window:, now: Time.current)
+    timeline_start = now - window
+    last_before = status_changes.where("checked_at < ?", timeline_start).order(:checked_at).last
+    # If there are no status_changes before the window, use 'unknown' as the initial status
+    initial_status = last_before&.status || 'unknown'
+    window_changes = status_changes.where(checked_at: timeline_start..now).order(:checked_at)
     segments = []
-    current_status = status
-    current_time = start_time
-    total_duration = end_time - start_time
-    
-    changes_in_range.each_with_index do |(change_status, change_time, change_message), index|
-      # Add segment from current_time to this change
-      if change_time > current_time
-        duration = change_time - current_time
-        duration_percent = (duration / total_duration) * 100
-        
-        segments << {
-          status: current_status,
-          start_time: current_time,
-          end_time: change_time,
-          duration_percent: duration_percent,
-          change_time: nil,
-          change_message: nil
-        }
-      end
-      
-      # Add segment for the change itself
-      next_change_time = changes_in_range[index + 1]&.second || end_time
-      duration = next_change_time - change_time
-      duration_percent = (duration / total_duration) * 100
-      
-      segments << {
-        status: change_status,
-        start_time: change_time,
-        end_time: next_change_time,
-        duration_percent: duration_percent,
-        change_time: change_time,
-        change_message: change_message
-      }
-      
-      current_status = change_status
-      current_time = next_change_time
+    prev_time = timeline_start
+    prev_status = initial_status
+    window_changes.each do |sc|
+      segment_start = prev_time
+      segment_end = sc.checked_at
+      segments << { status: prev_status, start: segment_start, end: segment_end } if segment_end > segment_start
+      prev_time = segment_end
+      prev_status = sc.status
     end
-    
-    # If we haven't covered the full time range, add a final segment
-    if current_time < end_time
-      duration = end_time - current_time
-      duration_percent = (duration / total_duration) * 100
-      
-      segments << {
-        status: current_status,
-        start_time: current_time,
-        end_time: end_time,
-        duration_percent: duration_percent,
-        change_time: nil,
-        change_message: nil
-      }
-    end
-    
-    # Limit segments to prevent overwhelming the UI
-    max_segments = 168 # Max 168 segments
-    if segments.length > max_segments
-      # Merge segments to reduce count while preserving important changes
-      merged_segments = []
-      segment_group_size = (segments.length.to_f / max_segments).ceil
-      
-      segments.each_slice(segment_group_size) do |group|
-        if group.length == 1
-          merged_segments << group.first
-        else
-          # Merge group into single segment, use most recent status
-          total_duration_percent = group.sum { |s| s[:duration_percent] }
-          merged_segments << {
-            status: group.last[:status],
-            start_time: group.first[:start_time],
-            end_time: group.last[:end_time],
-            duration_percent: total_duration_percent,
-            change_time: group.last[:change_time],
-            change_message: group.last[:change_message]
-          }
-        end
-      end
-      segments = merged_segments
-    end
-    
-    { segments: segments, total_duration: total_duration }
+    segments << { status: prev_status, start: prev_time, end: now } if prev_time < now
+    segments
+  end
+
+  def timeline_segments_24h(now = Time.current)
+    timeline_segments_window(window: 24.hours, now: now)
+  end
+
+  def timeline_segments_7d(now = Time.current)
+    timeline_segments_window(window: 7.days, now: now)
   end
 
   private
@@ -247,5 +164,9 @@ class Endpoint < ApplicationRecord
     when 'ssl'
       errors.add(:url, "can't be blank for SSL type") if url.blank?
     end
+  end
+
+  def set_check_offset_bucket
+    self.check_offset_bucket ||= rand(0..3)
   end
 end

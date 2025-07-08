@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_07_07_190000) do
+ActiveRecord::Schema[8.0].define(version: 2025_07_07_190003) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -27,6 +27,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_07_190000) do
     t.datetime "updated_at", null: false
     t.datetime "last_checked_at"
     t.integer "check_interval_seconds"
+    t.integer "check_offset_bucket"
+    t.index ["enabled", "last_checked_at"], name: "index_endpoints_on_enabled_and_last_checked_at"
     t.index ["user_id"], name: "index_endpoints_on_user_id"
   end
 
@@ -39,6 +41,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_07_190000) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["checked_at"], name: "index_status_changes_on_checked_at"
+    t.index ["endpoint_id", "checked_at"], name: "index_status_changes_on_endpoint_id_and_checked_at"
     t.index ["endpoint_id"], name: "index_status_changes_on_endpoint_id"
   end
 

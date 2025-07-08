@@ -3,7 +3,7 @@
 
 # Check endpoints every 30 seconds (handles individual endpoint intervals)
 monitoring:
-  cron: "*/30 * * * * *"  # Every 30 seconds
+  cron: "*/15 * * * * *"  # Every 15 seconds
   class: "ScheduledMonitoringJob"
   queue: default
 

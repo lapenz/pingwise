@@ -129,6 +129,7 @@
               <%= @endpoint.formatted_interval %>
             </dd>
           </div>
+          
         </dl>
       </div>
     </div>
@@ -139,54 +140,14 @@
         <h3 class="text-lg font-medium text-gray-900">Status History</h3>
       </div>
       <div class="p-4">
-        <!-- Timeline Chart -->
-        <div class="mb-6">
-          <h4 class="text-sm font-medium text-gray-700">Timeline (Last 24 Hours)</h4>
-          <div id="timeline-chart" class="bg-white rounded-lg border border-gray-200">
-            <!-- D3 chart will be rendered here -->
-          </div>
-          <% if @timeline_events.empty? %>
-            <p class="text-sm text-gray-500 mt-2">No status changes in the last 24 hours</p>
-          <% end %>
+        <div class="my-8">
+          <h3 class="text-lg font-medium text-gray-900 mb-2">Status Changes Step Chart (Last 24 Hours)</h3>
+          <div id="status-step-chart" style="width:100%; height:180px;"></div>
         </div>
-
-        <!-- 10-Day Timeline Chart -->
-        <div class="mb-6">
-          <h4 class="text-sm font-medium text-gray-700">Timeline (Last 10 Days)</h4>
-          <div id="timeline-chart-10d" class="bg-white rounded-lg border border-gray-200">
-            <!-- D3 chart will be rendered here -->
-          </div>
-          <% if @timeline_events_10d.empty? %>
-            <p class="text-sm text-gray-500 mt-2">No status changes in the last 10 days</p>
-          <% end %>
+        <div class="my-8">
+          <h3 class="text-lg font-medium text-gray-900 mb-2">Status Changes Step Chart (Last 7 Days)</h3>
+          <div id="status-step-chart-7d" style="width:100%; height:180px;"></div>
         </div>
-
-        <!-- Status Legend -->
-        <div class="my-5 p-4 bg-gray-50 rounded-lg">
-          <div class="flex flex-wrap justify-center gap-6">
-            <div class="flex items-center px-4 py-2 bg-white rounded-lg shadow-sm">
-              <div class="w-4 h-4 bg-green-500 rounded-full mr-4"></div>
-              <span class="text-sm font-medium text-gray-700">Up</span>
-            </div>
-            <div class="flex items-center px-4 py-2 bg-white rounded-lg shadow-sm">
-              <div class="w-4 h-4 bg-red-500 rounded-full mr-4"></div>
-              <span class="text-sm font-medium text-gray-700">Down</span>
-            </div>
-            <div class="flex items-center px-4 py-2 bg-white rounded-lg shadow-sm">
-              <div class="w-4 h-4 bg-yellow-500 rounded-full mr-4"></div>
-              <span class="text-sm font-medium text-gray-700">Degraded</span>
-            </div>
-            <div class="flex items-center px-4 py-2 bg-white rounded-lg shadow-sm">
-              <div class="w-4 h-4 bg-gray-500 rounded-full mr-4"></div>
-              <span class="text-sm font-medium text-gray-700">Unknown</span>
-            </div>
-            <div class="flex items-center px-4 py-2 bg-white rounded-lg shadow-sm">
-              <div class="w-4 h-4 bg-blue-500 rounded-full mr-4"></div>
-              <span class="text-sm font-medium text-gray-700">Paused</span>
-            </div>
-          </div>
-        </div>
-
         <% if @status_changes.any? %>
           <div class="p-6">
             <div class="flow-root">
@@ -207,7 +168,7 @@
                                 when 'unknown' then 'bg-gray-500'
                                 when 'paused' then 'bg-blue-500'
                                 end %>">
-                            <span class="text-white text-sm"><%= status_change.status_icon %></span>
+                              <span class="text-white text-sm"><%= status_change.status_icon %></span>
                           </span>
                         </div>
                         <div class="min-w-0 flex-1 pt-1.5 flex justify-between space-x-4">
@@ -242,70 +203,117 @@
             <p class="text-gray-500">Status changes will appear here once monitoring begins.</p>
           </div>
         <% end %>
-
       </div>
     </div>
   </div>
 </div>
 
-<script>
-// Initialize D3 Timeline Chart
-document.addEventListener('DOMContentLoaded', function() {
-  const timelineData = <%= raw @timeline_events.to_json %>;
-  const timelineData10d = <%= raw @timeline_events_10d.to_json %>;
-  const chartContainer = document.getElementById('timeline-chart');
-  const chartContainer10d = document.getElementById('timeline-chart-10d');
-  
-  if (chartContainer && timelineData.length > 0) {
-    try {
-      window.timelineChart = new TimelineChart('#timeline-chart', timelineData);
-    } catch (error) {
-      console.error('Error initializing timeline chart:', error);
-      chartContainer.innerHTML = '<p class="text-gray-500 text-center">Error loading timeline chart</p>';
-    }
-  }
-  
-  if (chartContainer10d && timelineData10d.length > 0) {
-    try {
-      window.timelineChart10d = new TimelineChart('#timeline-chart-10d', timelineData10d);
-    } catch (error) {
-      console.error('Error initializing 10-day timeline chart:', error);
-      chartContainer10d.innerHTML = '<p class="text-gray-500 text-center">Error loading timeline chart</p>';
-    }
-  }
-});
-
-// Initialize on turbo:load (for Turbo Drive navigation)
-document.addEventListener('turbo:load', function() {
-  const timelineData = <%= raw @timeline_events.to_json %>;
-  const timelineData10d = <%= raw @timeline_events_10d.to_json %>;
-  const chartContainer = document.getElementById('timeline-chart');
-  const chartContainer10d = document.getElementById('timeline-chart-10d');
-  
-  if (chartContainer && timelineData.length > 0) {
-    try {
-      // Destroy existing chart if it exists
-      if (window.timelineChart) {
-        window.timelineChart.destroy();
+<% content_for :d3_chart_js do %>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <script>
+    function renderStatusStepChart(containerId, data, windowMs, yStatuses) {
+      const chartContainer = document.getElementById(containerId);
+      if (!chartContainer || typeof d3 === 'undefined') return;
+      d3.select(`#${containerId}`).selectAll("*").remove();
+      const statusColors = {
+        up: "#10B981",
+        down: "#EF4444",
+        degraded: "#F59E0B",
+        unknown: "#6B7280",
+        paused: "#3B82F6"
+      };
+      const statuses = yStatuses || Object.keys(statusColors);
+      const margin = {top: 30, right: 20, bottom: 30, left: 60};
+      const width = chartContainer.offsetWidth - margin.left - margin.right;
+      const height = 100;
+      const now = new Date();
+      const timelineStart = new Date(now.getTime() - windowMs);
+      const svg = d3.select(`#${containerId}`)
+        .append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+        .attr("transform", `translate(${margin.left},${margin.top})`);
+      const x = d3.scaleTime()
+        .domain([timelineStart, now])
+        .range([0, width]);
+      const y = d3.scalePoint()
+        .domain(statuses)
+        .range([height, 0]);
+      // Build step data
+      const stepData = [];
+      if (data.length > 0) {
+        let lastStatus = data[0].status;
+        let lastTime = new Date(data[0].start);
+        stepData.push({ time: lastTime, status: lastStatus });
+        data.forEach(seg => {
+          if (new Date(seg.start) > lastTime) {
+            stepData.push({ time: new Date(seg.start), status: lastStatus });
+          }
+          stepData.push({ time: new Date(seg.start), status: seg.status });
+          lastStatus = seg.status;
+          lastTime = new Date(seg.end);
+        });
+        stepData.push({ time: lastTime, status: lastStatus });
       }
-      window.timelineChart = new TimelineChart('#timeline-chart', timelineData);
-    } catch (error) {
-      console.error('Error initializing timeline chart:', error);
-      chartContainer.innerHTML = '<p class="text-gray-500 text-center">Error loading timeline chart</p>';
-    }
-  }
-  
-  if (chartContainer10d && timelineData10d.length > 0) {
-    try {
-      // Destroy existing chart if it exists
-      if (window.timelineChart10d) {
-        window.timelineChart10d.destroy();
+      // Draw step line
+      if (stepData.length > 1) {
+        const line = d3.line()
+          .x(d => x(d.time))
+          .y(d => y(d.status))
+          .curve(d3.curveStepAfter);
+        svg.append("path")
+          .datum(stepData)
+          .attr("fill", "none")
+          .attr("stroke", "#333")
+          .attr("stroke-width", 3)
+          .attr("d", line);
       }
-      window.timelineChart10d = new TimelineChart('#timeline-chart-10d', timelineData10d);
-    } catch (error) {
-      console.error('Error initializing 10-day timeline chart:', error);
-      chartContainer10d.innerHTML = '<p class="text-gray-500 text-center">Error loading timeline chart</p>';
+      // Draw colored background rectangles for each segment
+      svg.selectAll("rect")
+        .data(data)
+        .enter()
+        .append("rect")
+        .attr("x", d => x(new Date(d.start)))
+        .attr("y", 0)
+        .attr("width", d => x(new Date(d.end)) - x(new Date(d.start)))
+        .attr("height", height)
+        .attr("fill", d => statusColors[d.status] || "#eee")
+        .attr("opacity", 0.15);
+      // X Axis
+      svg.append("g")
+        .attr("transform", `translate(0,${height})`)
+        .call(d3.axisBottom(x).ticks(windowMs === 24*60*60*1000 ? 5 : 7));
+      // Y Axis
+      svg.append("g")
+        .call(d3.axisLeft(y));
+      // Legend
+      const legend = svg.selectAll(".legend")
+        .data(statuses)
+        .enter().append("g")
+        .attr("class", "legend")
+        .attr("transform", (d, i) => `translate(${i * 90},-20)`);
+      legend.append("rect")
+        .attr("x", 0)
+        .attr("width", 14)
+        .attr("height", 14)
+        .attr("fill", d => statusColors[d] || "#888");
+      legend.append("text")
+        .attr("x", 20)
+        .attr("y", 12)
+        .text(d => d.charAt(0).toUpperCase() + d.slice(1));
     }
-  }
-});
-</script>
+    document.addEventListener('turbo:load', function() {
+      renderStatusStepChart(
+        'status-step-chart',
+        <%= raw @endpoint.timeline_segments_24h.to_json.html_safe %>,
+        24*60*60*1000
+      );
+      renderStatusStepChart(
+        'status-step-chart-7d',
+        <%= raw @endpoint.timeline_segments_7d.to_json.html_safe %>,
+        7*24*60*60*1000
+      );
+    });
+  </script>
+<% end %>
