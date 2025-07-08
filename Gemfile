@@ -87,7 +87,7 @@ group :development, :test do
 
   # Testing
   gem "rspec-rails", "~> 6.0.0"
-  gem "factory_bot_rails", "~> 6.4.0"
+  gem "factory_bot_rails", "~> 6.5.0"
   gem "faker", "~> 3.2.0"
 end
 
