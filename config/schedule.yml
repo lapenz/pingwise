@@ -11,4 +11,4 @@ monitoring:
 cleanup_old_records:
   cron: "0 2 * * *"  # Daily at 2 AM
   class: "CleanupOldRecordsJob"
-  queue: default 
+  queue: default

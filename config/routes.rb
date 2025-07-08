@@ -1,14 +1,14 @@
 Rails.application.routes.draw do
   devise_for :users
-  
+
   # Sidekiq Web UI
   require 'sidekiq/web'
   require 'sidekiq/cron/web'
   mount Sidekiq::Web => '/sidekiq'
-  
+
   # Dashboard
   root "dashboard#index"
-  
+
   # Endpoints
   resources :endpoints do
     member do

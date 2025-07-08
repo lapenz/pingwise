@@ -30,7 +30,7 @@ class StatusChange < ApplicationRecord
 
   def formatted_duration
     return 'N/A' if duration_since_previous.nil?
-    
+
     duration = duration_since_previous
     if duration < 1.minute
       "#{duration.to_i}s"

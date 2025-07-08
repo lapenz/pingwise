@@ -30,9 +30,9 @@
 
   <div>
     <%= form.label :endpoint_type, class: "block text-sm font-medium text-gray-700" %>
-    <%= form.select :endpoint_type, 
-        options_for_select(Endpoint.endpoint_types.keys.map { |type| [type.humanize, type] }, endpoint.endpoint_type), 
-        {}, 
+    <%= form.select :endpoint_type,
+        options_for_select(Endpoint.endpoint_types.keys.map { |type| [type.humanize, type] }, endpoint.endpoint_type),
+        {},
         { class: "mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" } %>
   </div>
 
@@ -58,11 +58,11 @@
 
   <div>
     <%= form.label :check_interval_seconds, "Check Interval (seconds)", class: "block text-sm font-medium text-gray-700" %>
-    <%= form.number_field :check_interval_seconds, 
-        value: endpoint.check_interval_seconds, 
-        class: "mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500", 
-        placeholder: "60", 
-        min: 30, 
+    <%= form.number_field :check_interval_seconds,
+        value: endpoint.check_interval_seconds,
+        class: "mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500",
+        placeholder: "60",
+        min: 30,
         max: 86400 %>
     <p class="mt-1 text-sm text-gray-500">
       How often to check this endpoint (30 seconds to 24 hours). Default: 60 seconds (1 minute)
@@ -90,7 +90,7 @@ function initializeFormFields() {
 
   function showFieldsForType(type) {
     console.log('Showing fields for type:', type);
-    
+
     // Hide all fields first
     document.querySelectorAll('.endpoint-fields').forEach(field => {
       field.style.display = 'none';
@@ -157,4 +157,4 @@ initializeFormFields();
 
 // Also run when DOM is ready
 document.addEventListener('DOMContentLoaded', initializeFormFields);
-</script> 
+</script>

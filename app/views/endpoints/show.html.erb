@@ -42,12 +42,12 @@
         <h3 class="text-lg font-medium text-gray-900 mb-2">Uptime (30 days)</h3>
         <p class="text-3xl font-bold text-green-600"><%= @uptime_30d %>%</p>
       </div>
-      
+
       <div class="bg-white rounded-lg shadow p-6">
         <h3 class="text-lg font-medium text-gray-900 mb-2">Uptime (7 days)</h3>
         <p class="text-3xl font-bold text-blue-600"><%= @uptime_7d %>%</p>
       </div>
-      
+
       <div class="bg-white rounded-lg shadow p-6">
         <h3 class="text-lg font-medium text-gray-900 mb-2">Uptime (24 hours)</h3>
         <p class="text-3xl font-bold text-purple-600"><%= @uptime_24h %>%</p>
@@ -65,7 +65,7 @@
             <dt class="text-sm font-medium text-gray-500">Type</dt>
             <dd class="mt-1 text-sm text-gray-900"><%= @endpoint.endpoint_type.humanize %></dd>
           </div>
-          
+
           <div>
             <dt class="text-sm font-medium text-gray-500">Status</dt>
             <dd class="mt-1">
@@ -81,7 +81,7 @@
               </span>
             </dd>
           </div>
-          
+
           <% if @endpoint.url.present? %>
             <div>
               <dt class="text-sm font-medium text-gray-500">URL</dt>
@@ -92,28 +92,28 @@
               </dd>
             </div>
           <% end %>
-          
+
           <% if @endpoint.ip.present? %>
             <div>
               <dt class="text-sm font-medium text-gray-500">IP Address</dt>
               <dd class="mt-1 text-sm text-gray-900"><%= @endpoint.ip %></dd>
             </div>
           <% end %>
-          
+
           <% if @endpoint.port.present? %>
             <div>
               <dt class="text-sm font-medium text-gray-500">Port</dt>
               <dd class="mt-1 text-sm text-gray-900"><%= @endpoint.port %></dd>
             </div>
           <% end %>
-          
+
           <div>
             <dt class="text-sm font-medium text-gray-500">Average Response Time</dt>
             <dd class="mt-1 text-sm text-gray-900">
               <%= @endpoint.average_response_time ? "#{@endpoint.average_response_time}ms" : "N/A" %>
             </dd>
           </div>
-          
+
           <div>
             <dt class="text-sm font-medium text-gray-500">Enabled</dt>
             <dd class="mt-1 text-sm text-gray-900">
@@ -122,14 +122,14 @@
               </span>
             </dd>
           </div>
-          
+
           <div>
             <dt class="text-sm font-medium text-gray-500">Check Interval</dt>
             <dd class="mt-1 text-sm text-gray-900">
               <%= @endpoint.formatted_interval %>
             </dd>
           </div>
-          
+
         </dl>
       </div>
     </div>

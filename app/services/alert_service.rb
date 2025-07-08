@@ -52,7 +52,7 @@ class AlertService
     return unless twilio_credentials_present?
 
     client = Twilio::REST::Client.new(twilio_account_sid, twilio_auth_token)
-    
+
     message = client.messages.create(
       from: twilio_phone_number,
       to: @user.phone_number,
@@ -94,4 +94,4 @@ class AlertService
   def twilio_phone_number
     ENV['TWILIO_PHONE_NUMBER']
   end
-end 
+end

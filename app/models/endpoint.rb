@@ -10,10 +10,10 @@ class Endpoint < ApplicationRecord
   validates :status, presence: true
   validates :enabled, inclusion: { in: [true, false] }
   validates :check_interval_seconds, numericality: { greater_than: 0, less_than_or_equal_to: 86400 }, allow_nil: true
-  
+
   # Ensure at least one of url, ip, or port is provided based on endpoint_type
   validate :validate_endpoint_fields
-  
+
   scope :enabled, -> { where(enabled: true) }
   scope :by_status, ->(status) { where(status: status) }
   scope :by_type, ->(type) { where(endpoint_type: type) }
@@ -68,16 +68,16 @@ class Endpoint < ApplicationRecord
 
   def uptime_percentage(days = 30)
     return 0 if status_changes.empty?
-    
+
     total_changes = status_changes.where(checked_at: days.days.ago..Time.current).count
     up_changes = status_changes.where(status: 'up', checked_at: days.days.ago..Time.current).count
-    
+
     total_changes > 0 ? (up_changes.to_f / total_changes * 100).round(2) : 0
   end
 
   def update_status!(new_status, response_time_ms = nil, message = nil)
     return if new_status == status && status_changes.any?
-    
+
     # Create status change record
     status_changes.create!(
       status: new_status,
@@ -85,7 +85,7 @@ class Endpoint < ApplicationRecord
       checked_at: Time.current,
       message: message
     )
-    
+
     # Update current status only (last_checked_at is handled in the job)
     update!(status: new_status)
   end

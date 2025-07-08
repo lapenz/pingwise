@@ -64,7 +64,7 @@ class EndpointMonitor
 
   def check_port
     require 'socket'
-    
+
     start_time = Time.current
     socket = TCPSocket.new(@endpoint.ip, @endpoint.port)
     socket.close
@@ -81,20 +81,20 @@ class EndpointMonitor
   def check_ssl
     require 'net/http'
     require 'openssl'
-    
+
     uri = URI(@endpoint.url)
     start_time = Time.current
-    
+
     http = Net::HTTP.new(uri.host, uri.port)
     http.use_ssl = true
     http.verify_mode = OpenSSL::SSL::VERIFY_PEER
-    
+
     response = http.get('/')
     response_time = ((Time.current - start_time) * 1000).round(2)
-    
+
     cert = http.peer_cert
     days_until_expiry = (cert.not_after - Time.current) / 1.day
-    
+
     if days_until_expiry < 30
       { status: 'degraded', response_time_ms: response_time, message: "SSL expires in #{days_until_expiry.to_i} days" }
     else
@@ -106,4 +106,4 @@ class EndpointMonitor
   rescue => e
     { status: 'down', response_time_ms: nil, message: "SSL check error: #{e.message}" }
   end
-end 
+end

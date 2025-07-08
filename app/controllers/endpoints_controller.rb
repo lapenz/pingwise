@@ -18,26 +18,26 @@ class EndpointsController < ApplicationController
     @uptime_30d = @endpoint.uptime_percentage(30)
     @uptime_7d = @endpoint.uptime_percentage(7)
     @uptime_24h = @endpoint.uptime_percentage(1)
-    
+
     # Timeline data for D3 chart - last 24 hours of status changes
     @timeline_events = @endpoint.status_changes
       .where(checked_at: 24.hours.ago..Time.current)
       .order(:checked_at)
       .pluck(:status, :checked_at, :message)
-      .map { |status, checked_at, message| 
+      .map { |status, checked_at, message|
         {
           status: status,
           checked_at: checked_at.iso8601,
           message: message
         }
       }
-    
+
     # Timeline data for last 10 days
     @timeline_events_10d = @endpoint.status_changes
       .where(checked_at: 10.days.ago..Time.current)
       .order(:checked_at)
       .pluck(:status, :checked_at, :message)
-      .map { |status, checked_at, message| 
+      .map { |status, checked_at, message|
         {
           status: status,
           checked_at: checked_at.iso8601,

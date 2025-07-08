@@ -73,7 +73,7 @@
           <%= link_to "Add Endpoint", new_endpoint_path, class: "bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium" %>
         </div>
       </div>
-      
+
       <div class="overflow-hidden">
         <% if @endpoints.any? %>
           <table class="min-w-full divide-y divide-gray-200">
@@ -168,7 +168,7 @@
                       <div class="min-w-0 flex-1 pt-1.5 flex justify-between space-x-4">
                         <div>
                           <p class="text-sm text-gray-500">
-                            <span class="font-medium text-gray-900"><%= endpoint.name %></span> is now 
+                            <span class="font-medium text-gray-900"><%= endpoint.name %></span> is now
                             <span class="font-medium text-gray-900"><%= status_change.status.upcase %></span>
                           </p>
                           <% if status_change.message.present? %>

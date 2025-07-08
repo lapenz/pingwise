@@ -23,4 +23,4 @@ class MonitorEndpointBatchJob < ApplicationJob
       end
     end
   end
-end 
+end
