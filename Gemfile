@@ -62,7 +62,7 @@ gem "chartkick", "~> 5.0.0"
 gem "groupdate", "~> 6.0.0"
 
 # Background job processing
-gem "sidekiq", "~> 7.2.0"
+gem "sidekiq", "~> 8.0.5"
 gem "redis", "~> 5.0.0"
 gem "sidekiq-cron", "~> 1.12.0"
 
