@@ -20,7 +20,7 @@ class MonitorEndpointJob < ApplicationJob
       )
 
       # Send alerts if status is down or degraded
-      if ['down', 'degraded'].include?(result[:status])
+      if [ "down", "degraded" ].include?(result[:status])
         AlertService.new(endpoint, result).send_alerts
       end
     end

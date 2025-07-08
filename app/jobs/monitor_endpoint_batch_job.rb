@@ -14,7 +14,7 @@ class MonitorEndpointBatchJob < ApplicationJob
             result[:response_time_ms],
             result[:message]
           )
-          if ['down', 'degraded'].include?(result[:status])
+          if [ "down", "degraded" ].include?(result[:status])
             AlertService.new(endpoint, result).send_alerts
           end
         end

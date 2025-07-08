@@ -24,8 +24,8 @@ class AlertService
     notifier = Slack::Notifier.new(slack_webhook_url)
     notifier.ping(
       text: "🚨 Endpoint Alert",
-      attachments: [{
-        color: @check_result[:status] == 'down' ? 'danger' : 'warning',
+      attachments: [ {
+        color: @check_result[:status] == "down" ? "danger" : "warning",
         title: @endpoint.name,
         text: "Status: #{@check_result[:status].upcase}\nMessage: #{@check_result[:message]}",
         fields: [
@@ -42,7 +42,7 @@ class AlertService
         ],
         footer: "PingWise Monitor",
         ts: Time.current.to_i
-      }]
+      } ]
     )
   rescue => e
     Rails.logger.error "Slack alert failed: #{e.message}"
@@ -76,22 +76,22 @@ class AlertService
   end
 
   def slack_webhook_url
-    ENV['SLACK_WEBHOOK_URL']
+    ENV["SLACK_WEBHOOK_URL"]
   end
 
   def twilio_credentials_present?
-    ENV['TWILIO_ACCOUNT_SID'].present? && ENV['TWILIO_AUTH_TOKEN'].present? && ENV['TWILIO_PHONE_NUMBER'].present?
+    ENV["TWILIO_ACCOUNT_SID"].present? && ENV["TWILIO_AUTH_TOKEN"].present? && ENV["TWILIO_PHONE_NUMBER"].present?
   end
 
   def twilio_account_sid
-    ENV['TWILIO_ACCOUNT_SID']
+    ENV["TWILIO_ACCOUNT_SID"]
   end
 
   def twilio_auth_token
-    ENV['TWILIO_AUTH_TOKEN']
+    ENV["TWILIO_AUTH_TOKEN"]
   end
 
   def twilio_phone_number
-    ENV['TWILIO_PHONE_NUMBER']
+    ENV["TWILIO_PHONE_NUMBER"]
   end
 end

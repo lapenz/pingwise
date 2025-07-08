@@ -1,15 +1,15 @@
 class EndpointsController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_endpoint, only: [:show, :edit, :update, :destroy, :check_now]
+  before_action :set_endpoint, only: [ :show, :edit, :update, :destroy, :check_now ]
 
   def index
     @endpoints = current_user.endpoints.order(:name)
     @status_counts = {
-      up: @endpoints.by_status('up').count,
-      down: @endpoints.by_status('down').count,
-      degraded: @endpoints.by_status('degraded').count,
-      unknown: @endpoints.by_status('unknown').count,
-      paused: @endpoints.by_status('paused').count
+      up: @endpoints.by_status("up").count,
+      down: @endpoints.by_status("down").count,
+      degraded: @endpoints.by_status("degraded").count,
+      unknown: @endpoints.by_status("unknown").count,
+      paused: @endpoints.by_status("paused").count
     }
   end
 
@@ -52,10 +52,10 @@ class EndpointsController < ApplicationController
 
   def create
     @endpoint = current_user.endpoints.build(endpoint_params)
-    @endpoint.status = 'unknown'
+    @endpoint.status = "unknown"
 
     if @endpoint.save
-      redirect_to @endpoint, notice: 'Endpoint was successfully created.'
+      redirect_to @endpoint, notice: "Endpoint was successfully created."
     else
       render :new, status: :unprocessable_entity
     end
@@ -66,7 +66,7 @@ class EndpointsController < ApplicationController
 
   def update
     if @endpoint.update(endpoint_params)
-      redirect_to @endpoint, notice: 'Endpoint was successfully updated.'
+      redirect_to @endpoint, notice: "Endpoint was successfully updated."
     else
       render :edit, status: :unprocessable_entity
     end
@@ -74,12 +74,12 @@ class EndpointsController < ApplicationController
 
   def destroy
     @endpoint.destroy
-    redirect_to endpoints_url, notice: 'Endpoint was successfully deleted.'
+    redirect_to endpoints_url, notice: "Endpoint was successfully deleted."
   end
 
   def check_now
     MonitorEndpointJob.perform_later(@endpoint.id)
-    redirect_to @endpoint, notice: 'Endpoint check has been queued.'
+    redirect_to @endpoint, notice: "Endpoint check has been queued."
   end
 
   private

@@ -8,7 +8,7 @@ class Endpoint < ApplicationRecord
   validates :name, presence: true
   validates :endpoint_type, presence: true
   validates :status, presence: true
-  validates :enabled, inclusion: { in: [true, false] }
+  validates :enabled, inclusion: { in: [ true, false ] }
   validates :check_interval_seconds, numericality: { greater_than: 0, less_than_or_equal_to: 86400 }, allow_nil: true
 
   # Ensure at least one of url, ip, or port is provided based on endpoint_type
@@ -19,8 +19,8 @@ class Endpoint < ApplicationRecord
   scope :by_type, ->(type) { where(endpoint_type: type) }
   scope :due_for_check, ->(now = Time.current) {
     where(enabled: true)
-      .where('last_checked_at IS NULL OR last_checked_at + (check_interval_seconds || \' seconds\')::interval <= ?', now)
-      .where('check_offset_bucket = ?', (now.sec / 15))
+      .where("last_checked_at IS NULL OR last_checked_at + (check_interval_seconds || ' seconds')::interval <= ?", now)
+      .where("check_offset_bucket = ?", (now.sec / 15))
   }
 
   before_create :set_check_offset_bucket
@@ -61,7 +61,7 @@ class Endpoint < ApplicationRecord
 
   def average_response_time
     status_changes
-      .where(status: [:up, :degraded])
+      .where(status: [ :up, :degraded ])
       .where.not(response_time_ms: nil)
       .average(:response_time_ms)&.round(2)
   end
@@ -70,7 +70,7 @@ class Endpoint < ApplicationRecord
     return 0 if status_changes.empty?
 
     total_changes = status_changes.where(checked_at: days.days.ago..Time.current).count
-    up_changes = status_changes.where(status: 'up', checked_at: days.days.ago..Time.current).count
+    up_changes = status_changes.where(status: "up", checked_at: days.days.ago..Time.current).count
 
     total_changes > 0 ? (up_changes.to_f / total_changes * 100).round(2) : 0
   end
@@ -92,16 +92,16 @@ class Endpoint < ApplicationRecord
 
   def status_icon
     case status
-    when 'up'
-      '🟢'
-    when 'down'
-      '🔴'
-    when 'degraded'
-      '🟡'
-    when 'unknown'
-      '⚪'
-    when 'paused'
-      '⏸️'
+    when "up"
+      "🟢"
+    when "down"
+      "🔴"
+    when "degraded"
+      "🟡"
+    when "unknown"
+      "⚪"
+    when "paused"
+      "⏸️"
     end
   end
 
@@ -109,7 +109,7 @@ class Endpoint < ApplicationRecord
     timeline_start = now - window
     last_before = status_changes.where("checked_at < ?", timeline_start).order(:checked_at).last
     # If there are no status_changes before the window, use 'unknown' as the initial status
-    initial_status = last_before&.status || 'unknown'
+    initial_status = last_before&.status || "unknown"
     window_changes = status_changes.where(checked_at: timeline_start..now).order(:checked_at)
     segments = []
     prev_time = timeline_start
@@ -137,31 +137,31 @@ class Endpoint < ApplicationRecord
 
   def status_color(status)
     case status
-    when 'up'
-      '#10B981' # Green
-    when 'down'
-      '#EF4444' # Red
-    when 'degraded'
-      '#F59E0B' # Yellow
-    when 'unknown'
-      '#6B7280' # Gray
-    when 'paused'
-      '#3B82F6' # Blue
+    when "up"
+      "#10B981" # Green
+    when "down"
+      "#EF4444" # Red
+    when "degraded"
+      "#F59E0B" # Yellow
+    when "unknown"
+      "#6B7280" # Gray
+    when "paused"
+      "#3B82F6" # Blue
     else
-      '#6B7280' # Gray
+      "#6B7280" # Gray
     end
   end
 
   def validate_endpoint_fields
     case endpoint_type
-    when 'url'
+    when "url"
       errors.add(:url, "can't be blank for URL type") if url.blank?
-    when 'ip'
+    when "ip"
       errors.add(:ip, "can't be blank for IP type") if ip.blank?
-    when 'port'
+    when "port"
       errors.add(:ip, "can't be blank for port type") if ip.blank?
       errors.add(:port, "can't be blank for port type") if port.blank?
-    when 'ssl'
+    when "ssl"
       errors.add(:url, "can't be blank for SSL type") if url.blank?
     end
   end

@@ -24,12 +24,12 @@ class StatusChange < ApplicationRecord
   end
 
   def formatted_response_time
-    return 'N/A' if response_time_ms.nil?
+    return "N/A" if response_time_ms.nil?
     "#{response_time_ms}ms"
   end
 
   def formatted_duration
-    return 'N/A' if duration_since_previous.nil?
+    return "N/A" if duration_since_previous.nil?
 
     duration = duration_since_previous
     if duration < 1.minute
@@ -45,16 +45,16 @@ class StatusChange < ApplicationRecord
 
   def status_icon
     case status
-    when 'up'
-      '🟢'
-    when 'down'
-      '🔴'
-    when 'degraded'
-      '🟡'
-    when 'unknown'
-      '⚪'
-    when 'paused'
-      '⏸️'
+    when "up"
+      "🟢"
+    when "down"
+      "🔴"
+    when "degraded"
+      "🟡"
+    when "unknown"
+      "⚪"
+    when "paused"
+      "⏸️"
     end
   end
 end
