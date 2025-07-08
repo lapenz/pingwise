@@ -140,7 +140,8 @@ GEM
       activesupport (>= 6.1)
     groupdate (6.0.1)
       activesupport (>= 5.2)
-    httparty (0.21.0)
+    httparty (0.23.1)
+      csv
       mini_mime (>= 1.0.0)
       multi_xml (>= 0.5.2)
     i18n (1.14.7)
@@ -442,7 +443,7 @@ DEPENDENCIES
   factory_bot_rails (~> 6.4.0)
   faker (~> 3.2.0)
   groupdate (~> 6.0.0)
-  httparty (~> 0.21.0)
+  httparty (~> 0.23.1)
   jbuilder
   jsbundling-rails
   kamal

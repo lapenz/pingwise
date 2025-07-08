@@ -43,7 +43,7 @@ gem "thruster", require: false
 # gem "image_processing", "~> 1.2"
 
 # Monitoring and HTTP checking
-gem "httparty", "~> 0.21.0"
+gem "httparty", "~> 0.23.1"
 gem "net-ping", "~> 2.0.0"
 gem "timeout", "~> 0.4.0"
 gem "csv", "~> 3.2.0"
