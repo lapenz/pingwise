@@ -68,7 +68,7 @@ gem "sidekiq-cron", "~> 1.12.0"
 
 # Authentication and authorization
 gem "devise", "~> 4.9.0"
-gem "pundit", "~> 2.3.0"
+gem "pundit", "~> 2.5.0"
 
 # API documentation
 # gem "rswag-api", "~> 2.13.0"
