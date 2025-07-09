@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_07_09_013847) do
+ActiveRecord::Schema[8.0].define(version: 2025_07_09_020410) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -32,6 +32,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_09_013847) do
     t.string "smtp_host"
     t.integer "smtp_port"
     t.boolean "smtp_use_tls"
+    t.string "dns_hostname"
     t.index ["enabled", "last_checked_at"], name: "index_endpoints_on_enabled_and_last_checked_at"
     t.index ["user_id"], name: "index_endpoints_on_user_id"
   end

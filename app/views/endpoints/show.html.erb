@@ -122,6 +122,13 @@
             </div>
           <% end %>
 
+          <% if @endpoint.endpoint_type == "dns" %>
+            <div>
+              <dt class="text-sm font-medium text-gray-500">DNS Hostname</dt>
+              <dd class="mt-1 text-sm text-gray-900"><%= @endpoint.dns_hostname %></dd>
+            </div>
+          <% end %>
+
           <div>
             <dt class="text-sm font-medium text-gray-500">Average Response Time</dt>
             <dd class="mt-1 text-sm text-gray-900">
