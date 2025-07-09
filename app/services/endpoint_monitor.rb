@@ -19,6 +19,8 @@ class EndpointMonitor
       check_smtp
     when "dns"
       check_dns
+    when "page_speed"
+      check_page_speed
     else
       { status: "unknown", response_time_ms: nil, message: "Unknown endpoint type" }
     end
@@ -157,6 +159,35 @@ class EndpointMonitor
       { status: "down", response_time_ms: nil, message: "DNS error: #{e.message}" }
     rescue => e
       { status: "down", response_time_ms: nil, message: "DNS check error: #{e.message}" }
+    end
+  end
+
+  def check_page_speed
+    require "open3"
+    require "json"
+    start_time = Time.current
+    script_path = Rails.root.join("scripts", "page_speed_check.js")
+    url = @endpoint.url
+    begin
+      stdout, stderr, status = Open3.capture3("node", script_path.to_s, url)
+      if status.success?
+        result = JSON.parse(stdout)
+        response_time = ((Time.current - start_time) * 1000).round(2)
+        load_time = result["loadTime"] || 0
+        fcp = result["firstContentfulPaint"] || 0
+        lcp = result["largestContentfulPaint"] || 0
+        if load_time > 5000 || fcp > 2000 || lcp > 4000
+          status = "degraded"
+        else
+          status = "up"
+        end
+        message = "Load: #{load_time}ms, FCP: #{fcp}ms, LCP: #{lcp}ms"
+        { status: status, response_time_ms: response_time, message: message }
+      else
+        { status: "down", response_time_ms: nil, message: "Page speed check failed: #{stderr}" }
+      end
+    rescue => e
+      { status: "down", response_time_ms: nil, message: "Page speed error: #{e.message}" }
     end
   end
 end

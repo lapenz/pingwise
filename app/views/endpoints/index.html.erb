@@ -123,7 +123,7 @@
                     <%= endpoint.last_checked_at&.strftime("%b %d, %H:%M") || "Never" %>
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    <%= endpoint.average_response_time ? "#{endpoint.average_response_time}ms" : "N/A" %>
+                    <%= endpoint.formatted_average_response_time %>
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     <%= endpoint.formatted_interval %>

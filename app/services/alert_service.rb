@@ -31,7 +31,11 @@ class AlertService
         fields: [
           {
             title: "Response Time",
-            value: @check_result[:response_time_ms] ? "#{@check_result[:response_time_ms]}ms" : "N/A",
+            value: @check_result[:response_time_ms] ? (
+              @check_result[:response_time_ms] < 1000 ?
+                "#{@check_result[:response_time_ms].round}ms" :
+                "#{(@check_result[:response_time_ms] / 1000.0).round(1)}s"
+            ) : "N/A",
             short: true
           },
           {

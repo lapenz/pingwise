@@ -2,7 +2,7 @@ class Endpoint < ApplicationRecord
   belongs_to :user
   has_many :status_changes, dependent: :destroy
 
-  enum :endpoint_type, { url: 0, ip: 1, port: 2, ssl: 3, smtp: 4, dns: 5 }
+  enum :endpoint_type, { url: 0, ip: 1, port: 2, ssl: 3, smtp: 4, dns: 5, page_speed: 6 }
   enum :status, { up: 0, down: 1, degraded: 2, unknown: 3, paused: 4 }
 
   validates :name, presence: true
@@ -64,6 +64,15 @@ class Endpoint < ApplicationRecord
       .where(status: [ :up, :degraded ])
       .where.not(response_time_ms: nil)
       .average(:response_time_ms)&.round(2)
+  end
+
+  def formatted_average_response_time
+    return "N/A" if average_response_time.nil?
+    if average_response_time < 1000
+      "#{average_response_time.round}ms"
+    else
+      "#{(average_response_time / 1000.0).round(1)}s"
+    end
   end
 
   def uptime_percentage(days = 30)

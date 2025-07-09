@@ -160,6 +160,12 @@ function initializeFormFields() {
           console.log('DNS fields shown');
         }
         break;
+      case 'page_speed':
+        if (urlFields) {
+          urlFields.style.display = 'block';
+          console.log('Page Speed fields shown (using URL)');
+        }
+        break;
       default:
         // Show URL fields by default
         if (urlFields) {

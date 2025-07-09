@@ -25,7 +25,11 @@ class StatusChange < ApplicationRecord
 
   def formatted_response_time
     return "N/A" if response_time_ms.nil?
-    "#{response_time_ms}ms"
+    if response_time_ms < 1000
+      "#{response_time_ms.round}ms"
+    else
+      "#{(response_time_ms / 1000.0).round(1)}s"
+    end
   end
 
   def formatted_duration

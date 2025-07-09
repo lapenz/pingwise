@@ -116,7 +116,7 @@
                     <%= endpoint.last_checked_at&.strftime("%b %d, %H:%M") || "Never" %>
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    <%= endpoint.average_response_time ? "#{endpoint.average_response_time}ms" : "N/A" %>
+                    <%= endpoint.formatted_average_response_time %>
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <%= link_to "Check Now", endpoint_path(endpoint), class: "text-blue-600 hover:text-blue-900" %>
@@ -137,58 +137,6 @@
     </div>
 
     <!-- Recent Activity -->
-    <% if @recent_status_changes.any? %>
-      <div class="mt-8 bg-white rounded-lg shadow">
-        <div class="px-6 py-4 border-b border-gray-200">
-          <h2 class="text-lg font-medium text-gray-900">Recent Activity</h2>
-        </div>
-        <div class="p-6">
-          <div class="flow-root">
-            <ul class="-mb-8">
-              <% @recent_status_changes.each_with_index do |endpoint, index| %>
-                <% status_change = endpoint.status_changes.first %>
-                <li>
-                  <div class="relative pb-8">
-                    <% unless index == @recent_status_changes.length - 1 %>
-                      <span class="absolute top-4 left-4 -ml-px h-full w-0.5 bg-gray-200" aria-hidden="true"></span>
-                    <% end %>
-                    <div class="relative flex space-x-3">
-                      <div>
-                        <span class="h-8 w-8 rounded-full flex items-center justify-center ring-8 ring-white
-                          <%= case status_change.status
-                              when 'up' then 'bg-green-500'
-                              when 'down' then 'bg-red-500'
-                              when 'degraded' then 'bg-yellow-500'
-                              when 'unknown' then 'bg-gray-500'
-                              when 'paused' then 'bg-blue-500'
-                              end %>">
-                          <span class="text-white text-sm"><%= status_change.status_icon %></span>
-                        </span>
-                      </div>
-                      <div class="min-w-0 flex-1 pt-1.5 flex justify-between space-x-4">
-                        <div>
-                          <p class="text-sm text-gray-500">
-                            <span class="font-medium text-gray-900"><%= endpoint.name %></span> is now
-                            <span class="font-medium text-gray-900"><%= status_change.status.upcase %></span>
-                          </p>
-                          <% if status_change.message.present? %>
-                            <p class="text-sm text-gray-500"><%= status_change.message %></p>
-                          <% end %>
-                        </div>
-                        <div class="text-right text-sm whitespace-nowrap text-gray-500">
-                          <time datetime="<%= status_change.checked_at.iso8601 %>">
-                            <%= time_ago_in_words(status_change.checked_at) %> ago
-                          </time>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </li>
-              <% end %>
-            </ul>
-          </div>
-        </div>
-      </div>
-    <% end %>
+    <%= render partial: "shared/recent_activity", locals: { activity_endpoints: @recent_status_changes, title: "Recent Activity" } if @recent_status_changes.any? %>
   </div>
 </div>
