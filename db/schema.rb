@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_07_07_190003) do
+ActiveRecord::Schema[8.0].define(version: 2025_07_09_013847) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -27,7 +27,11 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_07_190003) do
     t.datetime "updated_at", null: false
     t.datetime "last_checked_at"
     t.integer "check_interval_seconds"
+    t.integer "check_offset_seconds"
     t.integer "check_offset_bucket"
+    t.string "smtp_host"
+    t.integer "smtp_port"
+    t.boolean "smtp_use_tls"
     t.index ["enabled", "last_checked_at"], name: "index_endpoints_on_enabled_and_last_checked_at"
     t.index ["user_id"], name: "index_endpoints_on_user_id"
   end

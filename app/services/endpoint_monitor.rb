@@ -15,6 +15,8 @@ class EndpointMonitor
       check_port
     when "ssl"
       check_ssl
+    when "smtp"
+      check_smtp
     else
       { status: "unknown", response_time_ms: nil, message: "Unknown endpoint type" }
     end
@@ -105,5 +107,36 @@ class EndpointMonitor
     { status: "down", response_time_ms: nil, message: "SSL error: #{e.message}" }
   rescue => e
     { status: "down", response_time_ms: nil, message: "SSL check error: #{e.message}" }
+  end
+
+  def check_smtp
+    require 'net/smtp'
+    start_time = Time.current
+    host = @endpoint.smtp_host
+    port = @endpoint.smtp_port || 25
+    use_tls = @endpoint.smtp_use_tls
+    message = ""
+    status = "up"
+    Net::SMTP.start(host, port, "localhost", nil, nil, :plain) do |smtp|
+      if use_tls
+        begin
+          smtp.enable_starttls
+          message = "STARTTLS supported"
+        rescue
+          status = "degraded"
+          message = "STARTTLS not supported"
+        end
+      else
+        message = "Connected"
+      end
+    end
+    response_time = ((Time.current - start_time) * 1000).round(2)
+    { status: status, response_time_ms: response_time, message: message }
+  rescue Net::OpenTimeout, Net::ReadTimeout
+    { status: "down", response_time_ms: nil, message: "Timeout" }
+  rescue Errno::ECONNREFUSED
+    { status: "down", response_time_ms: nil, message: "Connection refused" }
+  rescue => e
+    { status: "down", response_time_ms: nil, message: "SMTP error: #{e.message}" }
   end
 end

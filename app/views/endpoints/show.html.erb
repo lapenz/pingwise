@@ -107,6 +107,21 @@
             </div>
           <% end %>
 
+          <% if @endpoint.endpoint_type == "smtp" %>
+            <div>
+              <dt class="text-sm font-medium text-gray-500">SMTP Host</dt>
+              <dd class="mt-1 text-sm text-gray-900"><%= @endpoint.smtp_host %></dd>
+            </div>
+            <div>
+              <dt class="text-sm font-medium text-gray-500">SMTP Port</dt>
+              <dd class="mt-1 text-sm text-gray-900"><%= @endpoint.smtp_port %></dd>
+            </div>
+            <div>
+              <dt class="text-sm font-medium text-gray-500">Use STARTTLS</dt>
+              <dd class="mt-1 text-sm text-gray-900"><%= @endpoint.smtp_use_tls ? "Yes" : "No" %></dd>
+            </div>
+          <% end %>
+
           <div>
             <dt class="text-sm font-medium text-gray-500">Average Response Time</dt>
             <dd class="mt-1 text-sm text-gray-900">

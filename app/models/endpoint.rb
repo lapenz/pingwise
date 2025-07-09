@@ -2,7 +2,7 @@ class Endpoint < ApplicationRecord
   belongs_to :user
   has_many :status_changes, dependent: :destroy
 
-  enum :endpoint_type, { url: 0, ip: 1, port: 2, ssl: 3 }
+  enum :endpoint_type, { url: 0, ip: 1, port: 2, ssl: 3, smtp: 4 }
   enum :status, { up: 0, down: 1, degraded: 2, unknown: 3, paused: 4 }
 
   validates :name, presence: true
@@ -131,6 +131,10 @@ class Endpoint < ApplicationRecord
 
   def timeline_segments_7d(now = Time.current)
     timeline_segments_window(window: 7.days, now: now)
+  end
+
+  def smtp_port
+    self[:smtp_port] || 25
   end
 
   private

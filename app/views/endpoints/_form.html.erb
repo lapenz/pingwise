@@ -51,21 +51,41 @@
     <%= form.number_field :port, class: "mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500", placeholder: "80", min: 1, max: 65535 %>
   </div>
 
+  <div id="smtp-fields" class="endpoint-fields" style="display: none;">
+    <%= form.label :smtp_host, class: "block text-sm font-medium text-gray-700" %>
+    <%= form.text_field :smtp_host, class: "mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500", placeholder: "smtp.example.com" %>
+    <%= form.label :smtp_port, class: "block text-sm font-medium text-gray-700 mt-4" %>
+    <%= form.number_field :smtp_port, class: "mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500", placeholder: "587", min: 1, max: 65535 %>
+    <div class="flex items-center mt-4">
+      <%= form.check_box :smtp_use_tls, class: "h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" %>
+      <%= form.label :smtp_use_tls, "Use STARTTLS", class: "ml-2 block text-sm text-gray-900" %>
+    </div>
+  </div>
+
   <div class="flex items-center">
     <%= form.check_box :enabled, class: "h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" %>
     <%= form.label :enabled, class: "ml-2 block text-sm text-gray-900" %>
   </div>
 
   <div>
-    <%= form.label :check_interval_seconds, "Check Interval (seconds)", class: "block text-sm font-medium text-gray-700" %>
-    <%= form.number_field :check_interval_seconds,
-        value: endpoint.check_interval_seconds,
-        class: "mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500",
-        placeholder: "60",
-        min: 30,
-        max: 86400 %>
+    <%= form.label :check_interval_seconds, "Check Interval", class: "block text-sm font-medium text-gray-700" %>
+    <%= form.select :check_interval_seconds, options_for_select([
+      ["Every 1 minute", 60],
+      ["Every 2 minutes", 120],
+      ["Every 5 minutes", 300],
+      ["Every 10 minutes", 600],
+      ["Every 15 minutes", 900],
+      ["Every 30 minutes", 1800],
+      ["Every 1 hour", 3600],
+      ["Every 6 hours", 21600],
+      ["Every 12 hours", 43200],
+      ["Every 24 hours", 86400]
+    ], endpoint.check_interval_seconds),
+      {},
+      class: "mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+    %>
     <p class="mt-1 text-sm text-gray-500">
-      How often to check this endpoint (30 seconds to 24 hours). Default: 60 seconds (1 minute)
+      How often to check this endpoint. Minimum: 1 minute. Default: 1 minute.
     </p>
   </div>
 
@@ -87,6 +107,7 @@ function initializeFormFields() {
   const urlFields = document.getElementById('url-fields');
   const ipFields = document.getElementById('ip-fields');
   const portFields = document.getElementById('port-fields');
+  const smtpFields = document.getElementById('smtp-fields');
 
   function showFieldsForType(type) {
     console.log('Showing fields for type:', type);
@@ -119,6 +140,12 @@ function initializeFormFields() {
         if (urlFields) {
           urlFields.style.display = 'block';
           console.log('SSL fields shown (using URL)');
+        }
+        break;
+      case 'smtp':
+        if (smtpFields) {
+          smtpFields.style.display = 'block';
+          console.log('SMTP fields shown');
         }
         break;
       default:

@@ -89,6 +89,6 @@ class EndpointsController < ApplicationController
   end
 
   def endpoint_params
-    params.require(:endpoint).permit(:name, :endpoint_type, :url, :ip, :port, :enabled, :check_interval_seconds)
+    params.require(:endpoint).permit(:name, :endpoint_type, :url, :ip, :port, :enabled, :check_interval_seconds, :smtp_host, :smtp_port, :smtp_use_tls)
   end
 end
