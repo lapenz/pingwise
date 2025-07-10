@@ -12,7 +12,7 @@
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('turbo:load', function() {
   const endpointTypeSelect = document.getElementById('endpoint_endpoint_type');
   const urlFields = document.getElementById('url-fields');
   const ipFields = document.getElementById('ip-fields');
@@ -57,10 +57,6 @@ document.addEventListener('DOMContentLoaded', function() {
     endpointTypeSelect.addEventListener('change', function() {
       showFieldsForType(this.value);
     });
-  } else {
-    console.error('Endpoint type select not found');
-    // Fallback: show URL fields by default
-    if (urlFields) urlFields.style.display = 'block';
   }
 });
 </script>

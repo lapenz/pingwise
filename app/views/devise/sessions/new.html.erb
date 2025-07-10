@@ -9,7 +9,7 @@
         Monitor your endpoints with <span class="font-semibold text-blue-600">PingWise</span>
       </p>
     </div>
-    <%= form_for(resource, as: resource_name, url: session_path(resource_name)) do |f| %>
+    <%= form_with model: resource, url: session_path(resource_name) do |f| %>
       <div class="rounded-md shadow-sm -space-y-px">
         <div class="mb-4">
           <%= f.label :email, class: "block text-sm font-medium text-gray-700" %>
