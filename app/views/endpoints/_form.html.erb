@@ -1,4 +1,4 @@
-<%= form_with model: endpoint, class: "space-y-6" do |form| %>
+<%= form_with model: endpoint, class: "space-y-6", data: { controller: "endpoint-form" } do |form| %>
   <% if endpoint.errors.any? %>
     <div class="bg-red-50 border border-red-200 rounded-md p-4">
       <div class="flex">
@@ -33,25 +33,25 @@
     <%= form.select :endpoint_type,
         options_for_select(Endpoint.endpoint_types.keys.map { |type| [type.humanize, type] }, endpoint.endpoint_type),
         {},
-        { class: "mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" } %>
+        { class: "mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500", data: { endpoint_form_target: "endpointType" } } %>
   </div>
 
-  <div id="url-fields" class="endpoint-fields" style="display: block;">
+  <div id="url-fields" class="endpoint-fields" data-endpoint-form-target="urlFields">
     <%= form.label :url, class: "block text-sm font-medium text-gray-700" %>
     <%= form.url_field :url, class: "mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500", placeholder: "https://example.com" %>
   </div>
 
-  <div id="ip-fields" class="endpoint-fields" style="display: none;">
+  <div id="ip-fields" class="endpoint-fields" data-endpoint-form-target="ipFields" style="display: none;">
     <%= form.label :ip, class: "block text-sm font-medium text-gray-700" %>
     <%= form.text_field :ip, class: "mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500", placeholder: "192.168.1.1" %>
   </div>
 
-  <div id="port-fields" class="endpoint-fields" style="display: none;">
+  <div id="port-fields" class="endpoint-fields" data-endpoint-form-target="portFields" style="display: none;">
     <%= form.label :port, class: "block text-sm font-medium text-gray-700" %>
     <%= form.number_field :port, class: "mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500", placeholder: "80", min: 1, max: 65535 %>
   </div>
 
-  <div id="smtp-fields" class="endpoint-fields" style="display: none;">
+  <div id="smtp-fields" class="endpoint-fields" data-endpoint-form-target="smtpFields" style="display: none;">
     <%= form.label :smtp_host, class: "block text-sm font-medium text-gray-700" %>
     <%= form.text_field :smtp_host, class: "mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500", placeholder: "smtp.example.com" %>
     <%= form.label :smtp_port, class: "block text-sm font-medium text-gray-700 mt-4" %>
@@ -62,7 +62,7 @@
     </div>
   </div>
 
-  <div id="dns-fields" class="endpoint-fields" style="display: none;">
+  <div id="dns-fields" class="endpoint-fields" data-endpoint-form-target="dnsFields" style="display: none;">
     <%= form.label :dns_hostname, class: "block text-sm font-medium text-gray-700" %>
     <%= form.text_field :dns_hostname, class: "mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500", placeholder: "example.com" %>
   </div>
@@ -104,102 +104,3 @@
     <% end %>
   </div>
 <% end %>
-
-<script>
-// Run immediately and also on DOMContentLoaded to ensure it works
-function initializeFormFields() {
-  const endpointTypeSelect = document.getElementById('endpoint_endpoint_type');
-  const urlFields = document.getElementById('url-fields');
-  const ipFields = document.getElementById('ip-fields');
-  const portFields = document.getElementById('port-fields');
-  const smtpFields = document.getElementById('smtp-fields');
-  const dnsFields = document.getElementById('dns-fields');
-
-  function showFieldsForType(type) {
-    console.log('Showing fields for type:', type);
-
-    // Hide all fields first
-    document.querySelectorAll('.endpoint-fields').forEach(field => {
-      field.style.display = 'none';
-    });
-
-    // Show relevant fields based on type
-    switch(type) {
-      case 'url':
-        if (urlFields) {
-          urlFields.style.display = 'block';
-          console.log('URL fields shown');
-        }
-        break;
-      case 'ip':
-        if (ipFields) {
-          ipFields.style.display = 'block';
-          console.log('IP fields shown');
-        }
-        break;
-      case 'port':
-        if (ipFields) ipFields.style.display = 'block';
-        if (portFields) portFields.style.display = 'block';
-        console.log('IP and Port fields shown');
-        break;
-      case 'ssl':
-        if (urlFields) {
-          urlFields.style.display = 'block';
-          console.log('SSL fields shown (using URL)');
-        }
-        break;
-      case 'smtp':
-        if (smtpFields) {
-          smtpFields.style.display = 'block';
-          console.log('SMTP fields shown');
-        }
-        break;
-      case 'dns':
-        if (dnsFields) {
-          dnsFields.style.display = 'block';
-          console.log('DNS fields shown');
-        }
-        break;
-      case 'page_speed':
-        if (urlFields) {
-          urlFields.style.display = 'block';
-          console.log('Page Speed fields shown (using URL)');
-        }
-        break;
-      default:
-        // Show URL fields by default
-        if (urlFields) {
-          urlFields.style.display = 'block';
-          console.log('Default: URL fields shown');
-        }
-        break;
-    }
-  }
-
-  if (endpointTypeSelect) {
-    // Show fields on page load
-    const initialValue = endpointTypeSelect.value || 'url';
-    console.log('Initial value:', initialValue);
-    showFieldsForType(initialValue);
-
-    // Show fields when type changes
-    endpointTypeSelect.addEventListener('change', function() {
-      console.log('Type changed to:', this.value);
-      showFieldsForType(this.value);
-    });
-  } else {
-    console.error('Endpoint type select not found');
-    // Fallback: show URL fields by default
-    if (urlFields) {
-      urlFields.style.display = 'block';
-      console.log('Fallback: URL fields shown');
-    }
-  }
-}
-
-// Run immediately
-initializeFormFields();
-
-// Also run when DOM is ready
-document.addEventListener('DOMContentLoaded', initializeFormFields);
-</script>
