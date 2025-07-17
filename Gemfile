@@ -63,7 +63,7 @@ gem "groupdate", "~> 6.0.0"
 
 # Background job processing
 gem "sidekiq", "~> 7.2.0"
-gem "redis", "~> 5.0.0"
+gem "redis", "~> 5.4.1"
 gem "sidekiq-cron", "~> 1.12.0"
 
 # Authentication and authorization
