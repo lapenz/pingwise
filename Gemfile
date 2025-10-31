@@ -46,7 +46,7 @@ gem "thruster", require: false
 gem "httparty", "~> 0.21.0"
 gem "net-ping", "~> 2.0.0"
 gem "timeout", "~> 0.4.0"
-gem "csv", "~> 3.2.0"
+gem "csv", "~> 3.3.5"
 
 # SSL certificate checking
 gem "openssl", "~> 3.0"
